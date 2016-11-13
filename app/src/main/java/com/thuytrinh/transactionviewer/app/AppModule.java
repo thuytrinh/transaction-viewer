@@ -5,7 +5,9 @@ import android.content.res.Resources;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.thuytrinh.transactionviewer.api.MockRatesFetcher;
 import com.thuytrinh.transactionviewer.api.MockTransactionsFetcher;
+import com.thuytrinh.transactionviewer.api.RatesFetcher;
 import com.thuytrinh.transactionviewer.api.TransactionsFetcher;
 
 import javax.inject.Singleton;
@@ -28,6 +30,10 @@ class AppModule {
 
   @Provides TransactionsFetcher transactionsFetcher() {
     return new MockTransactionsFetcher(context.getAssets(), new Gson());
+  }
+
+  @Provides RatesFetcher ratesFetcher() {
+    return new MockRatesFetcher(context.getAssets(), new Gson());
   }
 
   @Provides @Singleton Action1<Throwable> errorHandler() {

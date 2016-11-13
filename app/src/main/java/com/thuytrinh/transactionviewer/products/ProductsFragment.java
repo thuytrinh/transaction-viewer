@@ -11,13 +11,16 @@ import com.thuytrinh.transactionviewer.BR;
 import com.thuytrinh.transactionviewer.R;
 import com.thuytrinh.transactionviewer.app.App;
 import com.thuytrinh.transactionviewer.databinding.ProductsBinding;
+import com.thuytrinh.transactionviewer.transactions.TransactionsActivity;
 
 import javax.inject.Inject;
 
 import me.tatarka.bindingcollectionadapter.ItemView;
+import rx.functions.Action1;
 
 public class ProductsFragment extends Fragment {
   @Inject ProductsViewModel viewModel;
+  @Inject Action1<Throwable> errorHandler;
 
   public static ItemView productView() {
     return ItemView.of(BR.viewModel, R.layout.product);
@@ -27,7 +30,11 @@ public class ProductsFragment extends Fragment {
     super.onCreate(savedInstanceState);
     setRetainInstance(true);
     App.component().productsComponent().inject(this);
-    viewModel.loadTransactions();
+    viewModel.loadProducts();
+    viewModel.onProductSelected()
+        .subscribe(x -> {
+          startActivity(TransactionsActivity.newIntent(getActivity(), x));
+        }, errorHandler);
   }
 
   @Nullable @Override

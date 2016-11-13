@@ -7,19 +7,27 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.thuytrinh.transactionviewer.BR;
 import com.thuytrinh.transactionviewer.R;
 import com.thuytrinh.transactionviewer.app.App;
 import com.thuytrinh.transactionviewer.databinding.TransactionsBinding;
 
 import javax.inject.Inject;
 
+import me.tatarka.bindingcollectionadapter.ItemView;
+
 public class TransactionsFragment extends Fragment {
   @Inject TransactionsViewModel viewModel;
+
+  public static ItemView conversionResultView() {
+    return ItemView.of(BR.viewModel, R.layout.conversion_result);
+  }
 
   @Override public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setRetainInstance(true);
     App.component().transactionsComponent().inject(this);
+    viewModel.loadTransactions(getArguments());
   }
 
   @Nullable @Override

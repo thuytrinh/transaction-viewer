@@ -6,14 +6,13 @@
 
     <variable
       name="viewModel"
-      type="com.thuytrinh.transactionviewer.products.ProductViewModel" />
+      type="com.thuytrinh.transactionviewer.conversion.ConversionResult" />
   </data>
 
   <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="?attr/selectableItemBackground"
-    android:onClick="@{() -> viewModel.select()}"
     android:orientation="vertical"
     android:padding="16dp">
 
@@ -21,14 +20,14 @@
       style="@style/TextAppearance.AppCompat.Title"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="@{viewModel.sku}"
+      android:text="@{viewModel.from}"
       tools:text="X1893" />
 
     <TextView
       style="@style/TextAppearance.AppCompat.Caption"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="@{viewModel.transactionCount}"
+      android:text="@{viewModel.to}"
       tools:text="424 transactions" />
   </LinearLayout>
 </layout>

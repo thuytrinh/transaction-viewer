@@ -15,26 +15,26 @@ import java.util.concurrent.Callable;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class MockTransactionsFetcher implements TransactionsFetcher {
-  private final Type transactionsType = new TypeToken<List<Transaction>>() {}.getType();
+public class MockRatesFetcher implements RatesFetcher {
+  private final Type ratesType = new TypeToken<List<Rate>>() {}.getType();
   private final AssetManager assetManager;
   private final Gson gson;
 
-  public MockTransactionsFetcher(AssetManager assetManager, Gson gson) {
+  public MockRatesFetcher(AssetManager assetManager, Gson gson) {
     this.assetManager = assetManager;
     this.gson = gson;
   }
 
-  @Override public Observable<List<Transaction>> fetchTransactionsAsync() {
+  @Override public Observable<List<Rate>> fetchRatesAsync() {
     return Observable
-        .fromCallable(new Callable<List<Transaction>>() {
-          @Override public List<Transaction> call() throws Exception {
+        .fromCallable(new Callable<List<Rate>>() {
+          @Override public List<Rate> call() throws Exception {
             InputStreamReader streamReader = null;
             try {
-              final InputStream stream = assetManager.open("transactions.json");
+              final InputStream stream = assetManager.open("rates.json");
               streamReader = new InputStreamReader(stream);
               final JsonReader jsonReader = gson.newJsonReader(streamReader);
-              return gson.fromJson(jsonReader, transactionsType);
+              return gson.fromJson(jsonReader, ratesType);
             } finally {
               if (streamReader != null) {
                 streamReader.close();
