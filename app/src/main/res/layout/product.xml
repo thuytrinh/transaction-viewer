@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools">
+
+  <data>
+
+    <variable
+      name="viewModel"
+      type="com.thuytrinh.transactionviewer.products.Product" />
+  </data>
+
+  <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+      style="@style/TextAppearance.AppCompat.Title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@{viewModel.sku}"
+      tools:text="X1893" />
+
+    <TextView
+      style="@style/TextAppearance.AppCompat.Caption"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@{viewModel.transactionCount}"
+      tools:text="424 transactions" />
+  </LinearLayout>
+</layout>

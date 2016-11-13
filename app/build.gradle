@@ -47,10 +47,10 @@ dependencies {
   // To automatically generate thread-safe data models.
   // And most importantly, to generate custom TypeAdapterFactories
   // to achieve stream-based JSON parsing which doesn't rely on reflection.
-  annotationProcessor 'org.immutables:value:2.3.7'
-  provided 'org.immutables:value:2.3.7:annotations'
-  provided 'org.immutables:builder:2.3.7'
-  provided 'org.immutables:gson:2.3.7:annotations'
+  annotationProcessor 'org.immutables:value:2.3.9'
+  provided 'org.immutables:value:2.3.9:annotations'
+  provided 'org.immutables:builder:2.3.9'
+  provided 'org.immutables:gson:2.3.9:annotations'
 
   compile 'com.google.dagger:dagger:2.7'
   annotationProcessor 'com.google.dagger:dagger-compiler:2.7'

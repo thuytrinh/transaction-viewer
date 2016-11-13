@@ -1,18 +1,15 @@
-package com.thuytrinh.transactionviewer;
+package com.thuytrinh.transactionviewer.transactions;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.thuytrinh.transactionviewer.products.ProductsFragment;
-
-public class MainActivity extends AppCompatActivity {
+public class TransactionsActivity extends AppCompatActivity {
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.main);
     if (savedInstanceState == null) {
       getSupportFragmentManager()
           .beginTransaction()
-          .add(R.id.productsLayout, new ProductsFragment())
+          .add(android.R.id.content, new TransactionsFragment())
           .commit();
     }
   }
