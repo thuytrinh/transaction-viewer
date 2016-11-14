@@ -4,9 +4,11 @@ import com.thuytrinh.transactionviewer.api.Transaction;
 import com.thuytrinh.transactionviewer.api.TransactionsFetcher;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 
+@Singleton
 public class ProductRepository {
   private Observable<Product> getProductsAsync;
 
