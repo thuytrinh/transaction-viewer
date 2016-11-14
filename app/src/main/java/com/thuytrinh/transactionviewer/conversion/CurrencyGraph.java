@@ -22,6 +22,35 @@ public class CurrencyGraph {
   private final Map<String, Map<String, BigDecimal>> graph;
 
   public CurrencyGraph(List<Rate> rates) {
+    graph = createGraph(rates);
+  }
+
+  private static Node findConversion(
+      String currency,
+      Map<String, Map<String, BigDecimal>> graph) {
+    final Set<String> visits = new LinkedHashSet<>();
+    final Queue<Node> queue = new LinkedList<>();
+
+    queue.add(new Node(null, currency, BigDecimal.ONE));
+    while (!queue.isEmpty()) {
+      final Node node = queue.poll();
+      visits.add(node.currency);
+      final Map<String, BigDecimal> neighbors = graph.get(node.currency);
+      final Set<String> keys = neighbors.keySet();
+      for (String key : keys) {
+        if (!visits.contains(key)) {
+          final Node n = new Node(node, key, neighbors.get(key));
+          queue.add(n);
+          if (GBP.equals(key)) {
+            return n;
+          }
+        }
+      }
+    }
+    throw new UnsupportedOperationException("Unknown conversion for " + currency);
+  }
+
+  private static Map<String, Map<String, BigDecimal>> createGraph(List<Rate> rates) {
     final Map<String, Map<String, BigDecimal>> g = new HashMap<>();
     for (int i = 0, size = rates.size(); i < size; i++) {
       final Rate rate = rates.get(i);
@@ -33,7 +62,7 @@ public class CurrencyGraph {
       }
       neighbors.put(rate.to(), rate.rate());
     }
-    graph = g;
+    return g;
   }
 
   public Observable<ConversionResult> asGbpAsync(String currency, BigDecimal amount) {
@@ -49,28 +78,7 @@ public class CurrencyGraph {
       ));
     }
     return Observable
-        .fromCallable(() -> {
-          final Set<String> visits = new LinkedHashSet<>();
-          final Queue<Node> queue = new LinkedList<>();
-
-          queue.add(new Node(null, currency, BigDecimal.ONE));
-          while (!queue.isEmpty()) {
-            final Node node = queue.poll();
-            visits.add(node.currency);
-            final Map<String, BigDecimal> neighbors = graph.get(node.currency);
-            final Set<String> keys = neighbors.keySet();
-            for (String key : keys) {
-              if (!visits.contains(key)) {
-                final Node n = new Node(node, key, neighbors.get(key));
-                queue.add(n);
-                if (GBP.equals(key)) {
-                  return n;
-                }
-              }
-            }
-          }
-          throw new UnsupportedOperationException("Unknown conversion for " + currency);
-        })
+        .fromCallable(() -> findConversion(currency, graph))
         .map(this::asRate)
         .map(amount::multiply)
         .map(amountInGbp -> asConversionResult(currency, amount, amountInGbp));
