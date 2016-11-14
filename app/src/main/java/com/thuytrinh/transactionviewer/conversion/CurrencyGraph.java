@@ -12,6 +12,9 @@ import java.util.Map;
 
 import rx.Observable;
 
+/**
+ * A graph that converts amounts in arbitrary currencies into `GBP` asynchronously.
+ */
 public class CurrencyGraph {
   public static final NumberFormat GBP_FORMATTER = NumberFormat.getCurrencyInstance(Locale.US);
   private final Map<String, Map<String, BigDecimal>> graph;

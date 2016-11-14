@@ -9,6 +9,10 @@ import javax.inject.Inject;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
+/**
+ * Asynchronously computes exchange rate between
+ * an arbitrary currency and `GBP`, and cache it for later access.
+ */
 class RateCache {
   private final Map<String, Observable<BigDecimal>> cache = new ConcurrentHashMap<>();
 

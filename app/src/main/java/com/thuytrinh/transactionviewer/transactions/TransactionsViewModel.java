@@ -58,6 +58,7 @@ public class TransactionsViewModel extends DisposableViewModel {
     rateRepository.getCurrencyGraphAsync()
         .flatMap(g -> productRepository.getProductBySkuAsync(sku)
             .flatMap(x -> Observable.from(x.transactions()))
+            // concatMap() to maintain the original order of transactions.
             .concatMap(x -> g.asGbpAsync(x.currency(), x.amount()))
         )
         .toList()
