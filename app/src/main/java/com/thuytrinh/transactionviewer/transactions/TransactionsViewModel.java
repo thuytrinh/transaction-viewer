@@ -53,8 +53,7 @@ public class TransactionsViewModel extends DisposableViewModel {
   void loadTransactions(Bundle args) {
     final String sku = args.getString(KEY_SKU);
     rateRepository.getCurrencyGraphAsync()
-        .flatMap(g -> productRepository.getProductsAsync()
-            .filter(x -> x.sku().equals(sku))
+        .flatMap(g -> productRepository.getProductBySkuAsync(sku)
             .flatMap(x -> Observable.from(x.transactions()))
             .concatMap(x -> g.asGbpAsync(x.currency(), x.amount()))
         )

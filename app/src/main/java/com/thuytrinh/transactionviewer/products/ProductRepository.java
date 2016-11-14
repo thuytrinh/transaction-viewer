@@ -30,4 +30,9 @@ public class ProductRepository {
   public Observable<Product> getProductsAsync() {
     return getProductsAsync;
   }
+
+  public Observable<Product> getProductBySkuAsync(String sku) {
+    return getProductsAsync
+        .filter(x -> x.sku().equals(sku));
+  }
 }
