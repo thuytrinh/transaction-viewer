@@ -13,10 +13,23 @@
     <import type="com.thuytrinh.transactionviewer.products.ProductsFragment" />
   </data>
 
-  <android.support.v7.widget.RecyclerView
+  <LinearLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:itemView="@{ProductsFragment.productView}"
-    app:items="@{viewModel.products}"
-    app:layoutManager="@{LayoutManagers.linear}" />
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/colorPrimary"
+      app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+      app:title="@string/products" />
+
+    <android.support.v7.widget.RecyclerView
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      app:itemView="@{ProductsFragment.productView}"
+      app:items="@{viewModel.products}"
+      app:layoutManager="@{LayoutManagers.linear}" />
+  </LinearLayout>
 </layout>

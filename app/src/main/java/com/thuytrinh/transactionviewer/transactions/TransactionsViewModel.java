@@ -28,6 +28,7 @@ public class TransactionsViewModel extends DisposableViewModel {
   private static final String KEY_SKU = "sku";
   public final ObservableList<ConversionResult> items = new ObservableArrayList<>();
   public final ObservableField<String> totalText = new ObservableField<>();
+  public final ObservableField<String> title = new ObservableField<>();
   private final Resources resources;
   private final RateRepository rateRepository;
   private final ProductRepository productRepository;
@@ -52,6 +53,8 @@ public class TransactionsViewModel extends DisposableViewModel {
 
   void loadTransactions(Bundle args) {
     final String sku = args.getString(KEY_SKU);
+    title.set(resources.getString(R.string.transactions_for_x, sku));
+
     rateRepository.getCurrencyGraphAsync()
         .flatMap(g -> productRepository.getProductBySkuAsync(sku)
             .flatMap(x -> Observable.from(x.transactions()))
