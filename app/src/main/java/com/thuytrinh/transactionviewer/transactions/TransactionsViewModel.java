@@ -11,6 +11,7 @@ import com.thuytrinh.transactionviewer.api.RatesFetcher;
 import com.thuytrinh.transactionviewer.conversion.ConversionResult;
 import com.thuytrinh.transactionviewer.conversion.CurrencyGraph;
 import com.thuytrinh.transactionviewer.products.ProductRepository;
+import com.thuytrinh.transactionviewer.util.DisposableViewModel;
 
 import java.math.BigDecimal;
 
@@ -22,7 +23,7 @@ import rx.functions.Action1;
 
 import static com.thuytrinh.transactionviewer.conversion.CurrencyGraph.GBP_FORMATTER;
 
-public class TransactionsViewModel {
+public class TransactionsViewModel extends DisposableViewModel {
   private static final String KEY_SKU = "sku";
   public final ObservableList<ConversionResult> items = new ObservableArrayList<>();
   public final ObservableField<String> totalText = new ObservableField<>();
@@ -65,6 +66,7 @@ public class TransactionsViewModel {
           }
           totalText.set(resources.getString(R.string.total_x, GBP_FORMATTER.format(total)));
         })
+        .takeUntil(onDispose())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(x -> {
           items.clear();

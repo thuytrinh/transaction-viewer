@@ -30,6 +30,11 @@ public class TransactionsFragment extends Fragment {
     viewModel.loadTransactions(getArguments());
   }
 
+  @Override public void onDestroy() {
+    viewModel.dispose();
+    super.onDestroy();
+  }
+
   @Nullable @Override
   public View onCreateView(
       LayoutInflater inflater,

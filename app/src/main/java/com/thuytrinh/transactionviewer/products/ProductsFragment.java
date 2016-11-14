@@ -37,6 +37,11 @@ public class ProductsFragment extends Fragment {
         }, errorHandler);
   }
 
+  @Override public void onDestroy() {
+    viewModel.dispose();
+    super.onDestroy();
+  }
+
   @Nullable @Override
   public View onCreateView(
       LayoutInflater inflater,
