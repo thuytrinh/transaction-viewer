@@ -6,53 +6,23 @@ import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Currency;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import hugo.weaving.DebugLog;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
 public class CurrencyGraph {
   public static final NumberFormat GBP_FORMATTER = NumberFormat.getCurrencyInstance(Locale.US);
-  private static final String GBP = "GBP";
   private final Map<String, Map<String, BigDecimal>> graph;
+  private final ConversionFinder conversionFinder;
   private final Map<String, Observable<BigDecimal>> rateCache = new ConcurrentHashMap<>();
 
-  public CurrencyGraph(List<Rate> rates) {
+  CurrencyGraph(List<Rate> rates, ConversionFinder conversionFinder) {
     graph = createGraph(rates);
-  }
-
-  @DebugLog
-  private static Path findConversion(
-      String currency,
-      Map<String, Map<String, BigDecimal>> graph) {
-    final Set<String> visits = new LinkedHashSet<>();
-    final Queue<Path> queue = new LinkedList<>();
-
-    queue.add(ImmutablePath.of(null, currency, BigDecimal.ONE));
-    while (!queue.isEmpty()) {
-      final Path path = queue.poll();
-      visits.add(path.currency());
-      final Map<String, BigDecimal> neighbors = graph.get(path.currency());
-      final Set<String> keys = neighbors.keySet();
-      for (String key : keys) {
-        if (!visits.contains(key)) {
-          final Path newPath = ImmutablePath.of(path, key, neighbors.get(key));
-          queue.add(newPath);
-          if (GBP.equals(key)) {
-            return newPath;
-          }
-        }
-      }
-    }
-    throw new UnsupportedOperationException("Unknown conversion for " + currency);
+    this.conversionFinder = conversionFinder;
   }
 
   static Map<String, Map<String, BigDecimal>> createGraph(List<Rate> rates) {
@@ -80,7 +50,7 @@ public class CurrencyGraph {
   }
 
   public Observable<ConversionResult> asGbpAsync(String currency, BigDecimal amount) {
-    if (GBP.equals(currency)) {
+    if (ConversionFinder.GBP.equals(currency)) {
       return Observable.fromCallable(() -> asConversionResult(
           currency,
           amount,
@@ -100,7 +70,7 @@ public class CurrencyGraph {
     Observable<BigDecimal> task = rateCache.get(currency);
     if (task == null) {
       task = Observable
-          .fromCallable(() -> findConversion(currency, graph))
+          .fromCallable(() -> conversionFinder.call(currency, graph))
           .map(CurrencyGraph::asRate)
           .cache()
           .subscribeOn(Schedulers.computation());
@@ -123,6 +93,6 @@ public class CurrencyGraph {
   }
 
   static {
-    GBP_FORMATTER.setCurrency(Currency.getInstance(GBP));
+    GBP_FORMATTER.setCurrency(Currency.getInstance(ConversionFinder.GBP));
   }
 }

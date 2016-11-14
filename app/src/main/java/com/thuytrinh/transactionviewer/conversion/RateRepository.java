@@ -11,9 +11,11 @@ import rx.Observable;
 public class RateRepository {
   private final Observable<CurrencyGraph> getCurrencyGraphAsync;
 
-  @Inject public RateRepository(RatesFetcher ratesFetcher) {
+  @Inject RateRepository(
+      RatesFetcher ratesFetcher,
+      ConversionFinder conversionFinder) {
     getCurrencyGraphAsync = Observable.defer(ratesFetcher::fetchRatesAsync)
-        .map(CurrencyGraph::new)
+        .map((rates) -> new CurrencyGraph(rates, conversionFinder))
         .cache();
   }
 
