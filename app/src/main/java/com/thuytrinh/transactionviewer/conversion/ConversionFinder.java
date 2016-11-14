@@ -9,6 +9,9 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+/**
+ * A BFS-based strategy to convert one unit of a currency into `GBP`.
+ */
 class ConversionFinder {
   static final String GBP = "GBP";
 
@@ -17,6 +20,11 @@ class ConversionFinder {
   Path call(
       String currency,
       Map<String, Map<String, BigDecimal>> graph) {
+    if (!graph.containsKey(currency)) {
+      throw new UnsupportedOperationException(
+          "Unknown currency: " + currency
+      );
+    }
     final Set<String> visits = new LinkedHashSet<>();
     final Queue<Path> queue = new LinkedList<>();
 
@@ -25,13 +33,15 @@ class ConversionFinder {
       final Path path = queue.poll();
       visits.add(path.currency());
       final Map<String, BigDecimal> neighbors = graph.get(path.currency());
-      final Set<String> keys = neighbors.keySet();
-      for (String key : keys) {
-        if (!visits.contains(key)) {
-          final Path newPath = ImmutablePath.of(path, key, neighbors.get(key));
-          queue.add(newPath);
-          if (GBP.equals(key)) {
-            return newPath;
+      if (neighbors != null) {
+        final Set<String> keys = neighbors.keySet();
+        for (String key : keys) {
+          if (!visits.contains(key)) {
+            final Path newPath = ImmutablePath.of(path, key, neighbors.get(key));
+            queue.add(newPath);
+            if (GBP.equals(key)) {
+              return newPath;
+            }
           }
         }
       }

@@ -69,10 +69,6 @@ public class CurrencyGraph {
           amount,
           amount
       ));
-    } else if (!graph.containsKey(currency)) {
-      return Observable.error(new UnsupportedOperationException(
-          "Unknown currency: " + currency
-      ));
     }
     return getRateAsync(currency)
         .map(amount::multiply)
