@@ -55,7 +55,7 @@ public class CurrencyGraph {
     throw new UnsupportedOperationException("Unknown conversion for " + currency);
   }
 
-  private static Map<String, Map<String, BigDecimal>> createGraph(List<Rate> rates) {
+  static Map<String, Map<String, BigDecimal>> createGraph(List<Rate> rates) {
     final Map<String, Map<String, BigDecimal>> g = new HashMap<>();
     for (int i = 0, size = rates.size(); i < size; i++) {
       final Rate rate = rates.get(i);
