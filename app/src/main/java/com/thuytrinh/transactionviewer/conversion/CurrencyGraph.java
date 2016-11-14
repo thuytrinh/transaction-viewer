@@ -3,10 +3,13 @@ package com.thuytrinh.transactionviewer.conversion;
 import com.thuytrinh.transactionviewer.api.Rate;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Currency;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -34,13 +37,11 @@ public class CurrencyGraph {
 
   public Observable<ConversionResult> asGbpAsync(String currency, BigDecimal amount) {
     if (GBP.equals(currency)) {
-      final String v = amount.toString();
-      return Observable.just(
-          ImmutableConversionResult.builder()
-              .from(v)
-              .to(v)
-              .build()
-      );
+      return Observable.fromCallable(() -> asConversionResult(
+          currency,
+          amount,
+          amount
+      ));
     } else if (!graph.containsKey(currency)) {
       return Observable.error(new UnsupportedOperationException(
           "Unknown currency: " + currency
@@ -77,11 +78,21 @@ public class CurrencyGraph {
           }
           return v;
         })
-        .map(x -> ImmutableConversionResult.builder()
-            .from(amount.toString())
-            .to(x.toString())
-            .build()
-        );
+        .map(amountInGbp -> asConversionResult(currency, amount, amountInGbp));
+  }
+
+  private ConversionResult asConversionResult(
+      String currency,
+      BigDecimal amount,
+      BigDecimal amountInGbp) {
+    final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
+    formatter.setCurrency(Currency.getInstance(currency));
+    final String from = formatter.format(amount);
+    formatter.setCurrency(Currency.getInstance(GBP));
+    final String to = formatter.format(amountInGbp);
+    return ImmutableConversionResult.builder()
+        .from(from).to(to)
+        .build();
   }
 
   private static class Node {
