@@ -12,34 +12,34 @@ import com.thuytrinh.transactionviewer.conversion.RateRepository;
 import com.thuytrinh.transactionviewer.products.ProductRepository;
 import com.thuytrinh.transactionviewer.util.DisposableViewModel;
 
-import java.math.BigDecimal;
-import java.util.List;
-
 import javax.inject.Inject;
 
-import hugo.weaving.DebugLog;
+import dagger.Lazy;
 import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 
-import static com.thuytrinh.transactionviewer.conversion.CurrencyGraph.GBP_FORMATTER;
+import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class TransactionsViewModel extends DisposableViewModel {
   private static final String KEY_SKU = "sku";
   public final ObservableList<ConversionResult> items = new ObservableArrayList<>();
   public final ObservableField<String> totalText = new ObservableField<>();
   public final ObservableField<String> title = new ObservableField<>();
+
   private final Resources resources;
+  private final Lazy<TotalAmountFormatter> totalAmountFormatterLazy;
   private final RateRepository rateRepository;
   private final ProductRepository productRepository;
   private final Action1<Throwable> errorHandler;
 
   @Inject TransactionsViewModel(
       Resources resources,
+      Lazy<TotalAmountFormatter> totalAmountFormatterLazy,
       RateRepository rateRepository,
       ProductRepository productRepository,
       Action1<Throwable> errorHandler) {
     this.resources = resources;
+    this.totalAmountFormatterLazy = totalAmountFormatterLazy;
     this.rateRepository = rateRepository;
     this.productRepository = productRepository;
     this.errorHandler = errorHandler;
@@ -61,21 +61,12 @@ public class TransactionsViewModel extends DisposableViewModel {
             .concatMap(x -> g.asGbpAsync(x.currency(), x.amount()))
         )
         .toList()
-        .doOnNext(this::computeTotal)
+        .doOnNext(x -> totalText.set(totalAmountFormatterLazy.get().computeAndFormatTotal(x)))
         .takeUntil(onDispose())
-        .observeOn(AndroidSchedulers.mainThread())
+        .observeOn(mainThread())
         .subscribe(x -> {
           items.clear();
           items.addAll(x);
         }, errorHandler);
-  }
-
-  @DebugLog
-  private void computeTotal(List<ConversionResult> x) {
-    BigDecimal total = BigDecimal.ZERO;
-    for (ConversionResult result : x) {
-      total = total.add(result.amountInGbp());
-    }
-    totalText.set(resources.getString(R.string.total_x, GBP_FORMATTER.format(total)));
   }
 }
