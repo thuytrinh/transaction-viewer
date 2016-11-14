@@ -13,15 +13,14 @@ import com.thuytrinh.transactionviewer.conversion.CurrencyGraph;
 import com.thuytrinh.transactionviewer.products.ProductRepository;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.util.Currency;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
+
+import static com.thuytrinh.transactionviewer.conversion.CurrencyGraph.GBP_FORMATTER;
 
 public class TransactionsViewModel {
   private static final String KEY_SKU = "sku";
@@ -64,9 +63,7 @@ public class TransactionsViewModel {
           for (ConversionResult result : x) {
             total = total.add(result.amountInGbp());
           }
-          final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
-          formatter.setCurrency(Currency.getInstance("GBP"));
-          totalText.set(resources.getString(R.string.total_x, formatter.format(total)));
+          totalText.set(resources.getString(R.string.total_x, GBP_FORMATTER.format(total)));
         })
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(x -> {

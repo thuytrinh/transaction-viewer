@@ -17,6 +17,7 @@ import java.util.Set;
 import rx.Observable;
 
 public class CurrencyGraph {
+  public static final NumberFormat GBP_FORMATTER = NumberFormat.getCurrencyInstance(Locale.US);
   private static final String GBP = "GBP";
   private final Map<String, Map<String, BigDecimal>> graph;
 
@@ -52,7 +53,7 @@ public class CurrencyGraph {
           final Set<String> visits = new LinkedHashSet<>();
           final Queue<Node> queue = new LinkedList<>();
 
-          queue.add(new Node(null, currency, amount));
+          queue.add(new Node(null, currency, BigDecimal.ONE));
           while (!queue.isEmpty()) {
             final Node node = queue.poll();
             visits.add(node.currency);
@@ -70,15 +71,18 @@ public class CurrencyGraph {
           }
           throw new UnsupportedOperationException("Unknown conversion for " + currency);
         })
-        .map(x -> {
-          BigDecimal v = BigDecimal.ONE;
-          while (x != null) {
-            v = v.multiply(x.amount);
-            x = x.parent;
-          }
-          return v;
-        })
+        .map(this::asRate)
+        .map(amount::multiply)
         .map(amountInGbp -> asConversionResult(currency, amount, amountInGbp));
+  }
+
+  private BigDecimal asRate(Node gbpNode) {
+    BigDecimal v = BigDecimal.ONE;
+    while (gbpNode != null) {
+      v = v.multiply(gbpNode.rate);
+      gbpNode = gbpNode.parent;
+    }
+    return v;
   }
 
   private ConversionResult asConversionResult(
@@ -88,8 +92,8 @@ public class CurrencyGraph {
     final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
     formatter.setCurrency(Currency.getInstance(currency));
     final String from = formatter.format(amount);
-    formatter.setCurrency(Currency.getInstance(GBP));
-    final String to = formatter.format(amountInGbp);
+
+    final String to = GBP_FORMATTER.format(amountInGbp);
     return ImmutableConversionResult.builder()
         .from(from)
         .to(to)
@@ -100,12 +104,16 @@ public class CurrencyGraph {
   private static class Node {
     final Node parent;
     final String currency;
-    final BigDecimal amount;
+    final BigDecimal rate;
 
-    Node(Node parent, String currency, BigDecimal amount) {
+    Node(Node parent, String currency, BigDecimal rate) {
       this.parent = parent;
       this.currency = currency;
-      this.amount = amount;
+      this.rate = rate;
     }
+  }
+
+  static {
+    GBP_FORMATTER.setCurrency(Currency.getInstance(GBP));
   }
 }
