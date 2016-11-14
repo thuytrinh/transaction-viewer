@@ -78,4 +78,29 @@ public class ConversionFinderTest {
         "GBP", BigDecimal.valueOf(4)
     ));
   }
+
+  @Test public void shouldPickCorrectPathIn2WayConversions() {
+    final Path path = finder.call("AUD", ImmutableMap.of(
+        "AUD", ImmutableMap.of("USD", BigDecimal.valueOf(2)),
+        "USD", ImmutableMap.of(
+            "EUR", BigDecimal.valueOf(3),
+            "AUD", BigDecimal.valueOf(4)
+        ),
+        "EUR", ImmutableMap.of(
+            "GBP", BigDecimal.valueOf(5),
+            "USD", BigDecimal.valueOf(6)
+        ),
+        "GBR", ImmutableMap.of("EUR", BigDecimal.valueOf(7))
+    ));
+    assertThat(path).isEqualTo(ImmutablePath.of(
+        ImmutablePath.of(
+            ImmutablePath.of(
+                ImmutablePath.of(null, "AUD", BigDecimal.ONE),
+                "USD", BigDecimal.valueOf(2)
+            ),
+            "EUR", BigDecimal.valueOf(3)
+        ),
+        "GBP", BigDecimal.valueOf(5)
+    ));
+  }
 }
