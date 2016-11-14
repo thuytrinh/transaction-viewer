@@ -69,4 +69,31 @@ public class ProductRepositoryTest {
     latter.assertValue(product);
     verifyNoMoreInteractions(transactionsFetcher);
   }
+
+  @Test public void shouldFilterProductsMatchingBySku() {
+    final Transaction a0 = ImmutableTransaction.builder()
+        .sku("A")
+        .amount(BigDecimal.valueOf(2))
+        .currency("USD")
+        .build();
+    final Transaction a1 = ImmutableTransaction.builder()
+        .sku("B")
+        .amount(BigDecimal.valueOf(3))
+        .currency("AUD")
+        .build();
+    when(transactionsFetcher.fetchTransactionsAsync())
+        .thenReturn(Observable.just(Lists.newArrayList(a0, a1)));
+
+    final TestSubscriber<Product> subscriber = new TestSubscriber<>();
+    repository.getProductBySkuAsync("B").subscribe(subscriber);
+
+    subscriber.awaitTerminalEvent();
+    subscriber.assertNoErrors();
+    subscriber.assertValue(
+        ImmutableProduct.builder()
+            .sku("B")
+            .transactions(Lists.newArrayList(a1))
+            .build()
+    );
+  }
 }

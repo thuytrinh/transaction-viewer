@@ -20,12 +20,11 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 public class ProductsViewModel extends DisposableViewModel {
   public final ObservableList<ProductViewModel> products = new ObservableArrayList<>();
   public final ObservableField<String> error = new ObservableField<>();
-
+  final PublishSubject<String> onProductSelected = PublishSubject.create();
   private final Resources resources;
   private final ProductRepository productRepository;
   private final Provider<ProductViewModel> productViewModelProvider;
   private final Action1<Throwable> errorHandler;
-  final PublishSubject<String> onProductSelected = PublishSubject.create();
 
   @Inject ProductsViewModel(
       Resources resources,

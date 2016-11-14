@@ -43,6 +43,11 @@ public class TransactionsViewModelTest {
     );
   }
 
+  @Test public void shouldCreateArgsCorrectly() {
+    final Bundle args = TransactionsViewModel.newArgs("ABC");
+    assertThat(args.getString("sku")).isEqualTo("ABC");
+  }
+
   @Test public void shouldReflectCorrectTitleForSku() {
     when(rateRepository.getCurrencyGraphAsync())
         .thenReturn(Observable.empty());
