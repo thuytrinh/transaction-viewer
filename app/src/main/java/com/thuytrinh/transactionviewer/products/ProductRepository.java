@@ -6,15 +6,16 @@ import com.thuytrinh.transactionviewer.api.TransactionsFetcher;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.Lazy;
 import rx.Observable;
 
 @Singleton
 public class ProductRepository {
-  private Observable<Product> getProductsAsync;
+  private final Observable<Product> getProductsAsync;
 
-  @Inject ProductRepository(TransactionsFetcher transactionsFetcher) {
+  @Inject ProductRepository(Lazy<TransactionsFetcher> transactionsFetcherLazy) {
     getProductsAsync = Observable
-        .defer(transactionsFetcher::fetchTransactionsAsync)
+        .defer(() -> transactionsFetcherLazy.get().fetchTransactionsAsync())
         .flatMap(Observable::from)
         .groupBy(Transaction::sku)
         .flatMap(x -> x
@@ -27,12 +28,12 @@ public class ProductRepository {
         .cache();
   }
 
-  public Observable<Product> getProductsAsync() {
-    return getProductsAsync;
-  }
-
   public Observable<Product> getProductBySkuAsync(String sku) {
     return getProductsAsync
         .filter(x -> x.sku().equals(sku));
+  }
+
+  Observable<Product> getProductsAsync() {
+    return getProductsAsync;
   }
 }
