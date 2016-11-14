@@ -17,6 +17,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import hugo.weaving.DebugLog;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -55,7 +56,7 @@ public class TransactionsViewModel extends DisposableViewModel {
         .flatMap(g -> productRepository.getProductsAsync()
             .filter(x -> x.sku().equals(sku))
             .flatMap(x -> Observable.from(x.transactions()))
-            .flatMap(x -> g.asGbpAsync(x.currency(), x.amount()))
+            .concatMap(x -> g.asGbpAsync(x.currency(), x.amount()))
         )
         .toList()
         .doOnNext(this::computeTotal)
@@ -67,6 +68,7 @@ public class TransactionsViewModel extends DisposableViewModel {
         }, errorHandler);
   }
 
+  @DebugLog
   private void computeTotal(List<ConversionResult> x) {
     BigDecimal total = BigDecimal.ZERO;
     for (ConversionResult result : x) {
