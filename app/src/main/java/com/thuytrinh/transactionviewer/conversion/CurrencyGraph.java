@@ -9,20 +9,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import rx.Observable;
-import rx.schedulers.Schedulers;
 
 public class CurrencyGraph {
   public static final NumberFormat GBP_FORMATTER = NumberFormat.getCurrencyInstance(Locale.US);
   private final Map<String, Map<String, BigDecimal>> graph;
   private final ConversionFinder conversionFinder;
-  private final Map<String, Observable<BigDecimal>> rateCache = new ConcurrentHashMap<>();
+  private final RateCache rateCache;
 
-  CurrencyGraph(List<Rate> rates, ConversionFinder conversionFinder) {
+  CurrencyGraph(
+      List<Rate> rates,
+      ConversionFinder conversionFinder,
+      RateCache rateCache) {
     graph = createGraph(rates);
     this.conversionFinder = conversionFinder;
+    this.rateCache = rateCache;
   }
 
   static Map<String, Map<String, BigDecimal>> createGraph(List<Rate> rates) {
@@ -38,15 +40,6 @@ public class CurrencyGraph {
       neighbors.put(rate.to(), rate.rate());
     }
     return g;
-  }
-
-  static BigDecimal asRate(Path path) {
-    BigDecimal v = BigDecimal.ONE;
-    while (path != null) {
-      v = v.multiply(path.rate());
-      path = path.parent();
-    }
-    return v;
   }
 
   static ConversionResult asConversionResult(
@@ -70,22 +63,9 @@ public class CurrencyGraph {
           amount
       ));
     }
-    return getRateAsync(currency)
+    return rateCache.getRateAsync(currency, conversionFinder, graph)
         .map(amount::multiply)
         .map(amountInGbp -> asConversionResult(currency, amount, amountInGbp));
-  }
-
-  private synchronized Observable<BigDecimal> getRateAsync(String currency) {
-    Observable<BigDecimal> task = rateCache.get(currency);
-    if (task == null) {
-      task = Observable
-          .fromCallable(() -> conversionFinder.call(currency, graph))
-          .map(CurrencyGraph::asRate)
-          .cache()
-          .subscribeOn(Schedulers.computation());
-      rateCache.put(currency, task);
-    }
-    return task;
   }
 
   static {

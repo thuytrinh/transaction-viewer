@@ -5,6 +5,7 @@ import com.thuytrinh.transactionviewer.api.RatesFetcher;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.Lazy;
 import rx.Observable;
 
 @Singleton
@@ -12,10 +13,16 @@ public class RateRepository {
   private final Observable<CurrencyGraph> getCurrencyGraphAsync;
 
   @Inject RateRepository(
-      RatesFetcher ratesFetcher,
-      ConversionFinder conversionFinder) {
-    getCurrencyGraphAsync = Observable.defer(ratesFetcher::fetchRatesAsync)
-        .map((rates) -> new CurrencyGraph(rates, conversionFinder))
+      Lazy<RatesFetcher> ratesFetcherLazy,
+      Lazy<ConversionFinder> conversionFinderLazy,
+      Lazy<RateCache> rateCacheLazy) {
+    getCurrencyGraphAsync = Observable
+        .defer(() -> ratesFetcherLazy.get().fetchRatesAsync())
+        .map((rates) -> new CurrencyGraph(
+            rates,
+            conversionFinderLazy.get(),
+            rateCacheLazy.get()
+        ))
         .cache();
   }
 
