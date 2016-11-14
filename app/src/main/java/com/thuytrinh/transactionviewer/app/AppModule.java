@@ -28,12 +28,16 @@ class AppModule {
     return context.getResources();
   }
 
-  @Provides TransactionsFetcher transactionsFetcher() {
-    return new MockTransactionsFetcher(context.getAssets(), new Gson());
+  @Provides @Singleton Gson gson() {
+    return new Gson();
   }
 
-  @Provides RatesFetcher ratesFetcher() {
-    return new MockRatesFetcher(context.getAssets(), new Gson());
+  @Provides TransactionsFetcher transactionsFetcher(Gson gson) {
+    return new MockTransactionsFetcher(context.getAssets(), gson);
+  }
+
+  @Provides RatesFetcher ratesFetcher(Gson gson) {
+    return new MockRatesFetcher(context.getAssets(), gson);
   }
 
   @Provides @Singleton Action1<Throwable> errorHandler() {
