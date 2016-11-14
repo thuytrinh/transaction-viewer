@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 
 @Value.Immutable
 public interface ConversionResult {
-  String from();
-  String to();
+  String originalAmountText();
+  String amountInGbpText();
   BigDecimal amountInGbp();
 }

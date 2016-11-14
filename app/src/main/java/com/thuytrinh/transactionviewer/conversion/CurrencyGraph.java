@@ -111,16 +111,13 @@ public class CurrencyGraph {
 
   private ConversionResult asConversionResult(
       String currency,
-      BigDecimal amount,
+      BigDecimal originalAmount,
       BigDecimal amountInGbp) {
     final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
     formatter.setCurrency(Currency.getInstance(currency));
-    final String from = formatter.format(amount);
-
-    final String to = GBP_FORMATTER.format(amountInGbp);
     return ImmutableConversionResult.builder()
-        .from(from)
-        .to(to)
+        .originalAmountText(formatter.format(originalAmount))
+        .amountInGbpText(GBP_FORMATTER.format(amountInGbp))
         .amountInGbp(amountInGbp)
         .build();
   }
