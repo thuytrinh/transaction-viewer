@@ -1,8 +1,11 @@
 package com.thuytrinh.transactionviewer.products;
 
+import android.content.res.Resources;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableField;
 import android.databinding.ObservableList;
 
+import com.thuytrinh.transactionviewer.R;
 import com.thuytrinh.transactionviewer.util.DisposableViewModel;
 
 import javax.inject.Inject;
@@ -16,15 +19,20 @@ import static rx.android.schedulers.AndroidSchedulers.mainThread;
 
 public class ProductsViewModel extends DisposableViewModel {
   public final ObservableList<ProductViewModel> products = new ObservableArrayList<>();
+  public final ObservableField<String> error = new ObservableField<>();
+
+  private final Resources resources;
   private final ProductRepository productRepository;
   private final Provider<ProductViewModel> productViewModelProvider;
   private final Action1<Throwable> errorHandler;
   private final PublishSubject<String> onProductSelected = PublishSubject.create();
 
   @Inject ProductsViewModel(
+      Resources resources,
       ProductRepository productRepository,
       Provider<ProductViewModel> productViewModelProvider,
       Action1<Throwable> errorHandler) {
+    this.resources = resources;
     this.productViewModelProvider = productViewModelProvider;
     this.errorHandler = errorHandler;
     this.productRepository = productRepository;
@@ -45,6 +53,7 @@ public class ProductsViewModel extends DisposableViewModel {
           return viewModel;
         })
         .toSortedList()
+        .doOnError(e -> error.set(resources.getString(R.string.error_loading_products)))
         .takeUntil(onDispose())
         .observeOn(mainThread())
         .subscribe(x -> {

@@ -25,6 +25,7 @@ public class TransactionsViewModel extends DisposableViewModel {
   public final ObservableList<ConversionResult> items = new ObservableArrayList<>();
   public final ObservableField<String> totalText = new ObservableField<>();
   public final ObservableField<String> title = new ObservableField<>();
+  public final ObservableField<String> error = new ObservableField<>();
 
   private final Resources resources;
   private final Lazy<TotalAmountFormatter> totalAmountFormatterLazy;
@@ -63,6 +64,7 @@ public class TransactionsViewModel extends DisposableViewModel {
         )
         .toList()
         .doOnNext(x -> totalText.set(totalAmountFormatterLazy.get().computeAndFormatTotal(x)))
+        .doOnError(e -> error.set(resources.getString(R.string.error_loading_transactions)))
         .takeUntil(onDispose())
         .observeOn(mainThread())
         .subscribe(x -> {

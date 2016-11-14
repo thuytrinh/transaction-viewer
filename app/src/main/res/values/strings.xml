@@ -3,6 +3,8 @@
   <string name="total_x">Total: %s</string>
   <string name="transactions_for_x">Transactions for %s</string>
   <string name="products">Products</string>
+  <string name="error_loading_products">Error loading products</string>
+  <string name="error_loading_transactions">Error loading transactions</string>
   <plurals name="transactions">
     <item quantity="other">%d transactions</item>
     <item quantity="one">%d transaction</item>

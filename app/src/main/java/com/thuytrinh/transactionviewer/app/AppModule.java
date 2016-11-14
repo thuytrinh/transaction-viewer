@@ -41,6 +41,8 @@ class AppModule {
   }
 
   @Provides @Singleton Action1<Throwable> errorHandler() {
+    // On production, we may consider uploading
+    // the error to Fabric or sth like that.
     return error -> Log.e(App.class.getSimpleName(), error.getMessage(), error);
   }
 }
