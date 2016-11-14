@@ -8,22 +8,24 @@ import javax.inject.Inject;
 import rx.Observable;
 
 public class ProductRepository {
-  private final TransactionsFetcher transactionsFetcher;
+  private Observable<Product> getProductsAsync;
 
   @Inject ProductRepository(TransactionsFetcher transactionsFetcher) {
-    this.transactionsFetcher = transactionsFetcher;
-  }
-
-  public Observable<Product> getProductsAsync() {
-    return transactionsFetcher.fetchTransactionsAsync()
+    getProductsAsync = Observable
+        .defer(transactionsFetcher::fetchTransactionsAsync)
         .flatMap(Observable::from)
         .groupBy(Transaction::sku)
         .flatMap(x -> x
             .toList()
-            .map(transactions -> ImmutableProduct.builder()
+            .map(transactions -> (Product) ImmutableProduct.builder()
                 .sku(x.getKey())
                 .transactions(transactions)
                 .build()
-            ));
+            ))
+        .cache();
+  }
+
+  public Observable<Product> getProductsAsync() {
+    return getProductsAsync;
   }
 }
