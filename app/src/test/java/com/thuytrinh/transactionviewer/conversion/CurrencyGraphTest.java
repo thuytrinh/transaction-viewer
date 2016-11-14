@@ -48,4 +48,13 @@ public class CurrencyGraphTest {
         ))
     );
   }
+
+  @Test public void shouldCalculateRateFromPathsCorrectly() {
+    final Path a = ImmutablePath.of(null, "THB", BigDecimal.ONE);
+    final Path b = ImmutablePath.of(a, "AUD", BigDecimal.valueOf(2));
+    final Path c = ImmutablePath.of(b, "USD", BigDecimal.valueOf(3));
+    final Path d = ImmutablePath.of(c, "GBP", BigDecimal.valueOf(4));
+    final BigDecimal rate = CurrencyGraph.asRate(d);
+    assertThat(rate).isEqualTo(BigDecimal.valueOf(24));
+  }
 }

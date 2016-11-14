@@ -70,6 +70,15 @@ public class CurrencyGraph {
     return g;
   }
 
+  static BigDecimal asRate(Path path) {
+    BigDecimal v = BigDecimal.ONE;
+    while (path != null) {
+      v = v.multiply(path.rate());
+      path = path.parent();
+    }
+    return v;
+  }
+
   public Observable<ConversionResult> asGbpAsync(String currency, BigDecimal amount) {
     if (GBP.equals(currency)) {
       return Observable.fromCallable(() -> asConversionResult(
@@ -92,21 +101,12 @@ public class CurrencyGraph {
     if (task == null) {
       task = Observable
           .fromCallable(() -> findConversion(currency, graph))
-          .map(this::asRate)
+          .map(CurrencyGraph::asRate)
           .cache()
           .subscribeOn(Schedulers.computation());
       rateCache.put(currency, task);
     }
     return task;
-  }
-
-  private BigDecimal asRate(Path path) {
-    BigDecimal v = BigDecimal.ONE;
-    while (path != null) {
-      v = v.multiply(path.rate());
-      path = path.parent();
-    }
-    return v;
   }
 
   private ConversionResult asConversionResult(
