@@ -67,6 +67,7 @@ dependencies {
   testCompile 'org.assertj:assertj-core:1.7.0'
   testCompile 'org.mockito:mockito-core:1.10.19'
   testCompile 'org.robolectric:robolectric:3.1.4'
-  testCompile 'commons-io:commons-io:2.5'
+
+  // To easily create collections during writing unit tests.
   testCompile 'com.google.guava:guava:20.0'
 }
