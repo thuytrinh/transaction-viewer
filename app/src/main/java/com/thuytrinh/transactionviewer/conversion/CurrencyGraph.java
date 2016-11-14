@@ -91,7 +91,9 @@ public class CurrencyGraph {
     formatter.setCurrency(Currency.getInstance(GBP));
     final String to = formatter.format(amountInGbp);
     return ImmutableConversionResult.builder()
-        .from(from).to(to)
+        .from(from)
+        .to(to)
+        .amountInGbp(amountInGbp)
         .build();
   }
 

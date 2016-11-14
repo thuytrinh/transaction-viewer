@@ -1,5 +1,6 @@
 <resources>
   <string name="app_name">Transactions</string>
+  <string name="total_x">Total: %s</string>
   <plurals name="transactions">
     <item quantity="other">%d transactions</item>
     <item quantity="one">%d transaction</item>

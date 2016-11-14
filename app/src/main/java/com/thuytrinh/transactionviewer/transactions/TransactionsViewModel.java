@@ -1,13 +1,21 @@
 package com.thuytrinh.transactionviewer.transactions;
 
+import android.content.res.Resources;
 import android.databinding.ObservableArrayList;
+import android.databinding.ObservableField;
 import android.databinding.ObservableList;
 import android.os.Bundle;
 
+import com.thuytrinh.transactionviewer.R;
 import com.thuytrinh.transactionviewer.api.RatesFetcher;
 import com.thuytrinh.transactionviewer.conversion.ConversionResult;
 import com.thuytrinh.transactionviewer.conversion.CurrencyGraph;
 import com.thuytrinh.transactionviewer.products.ProductRepository;
+
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -18,14 +26,18 @@ import rx.functions.Action1;
 public class TransactionsViewModel {
   private static final String KEY_SKU = "sku";
   public final ObservableList<ConversionResult> items = new ObservableArrayList<>();
+  public final ObservableField<String> totalText = new ObservableField<>();
+  private final Resources resources;
   private final RatesFetcher ratesFetcher;
   private final ProductRepository productRepository;
   private final Action1<Throwable> errorHandler;
 
   @Inject TransactionsViewModel(
+      Resources resources,
       RatesFetcher ratesFetcher,
       ProductRepository productRepository,
       Action1<Throwable> errorHandler) {
+    this.resources = resources;
     this.ratesFetcher = ratesFetcher;
     this.productRepository = productRepository;
     this.errorHandler = errorHandler;
@@ -47,6 +59,15 @@ public class TransactionsViewModel {
             .flatMap(x -> g.asGbpAsync(x.currency(), x.amount()))
         )
         .toList()
+        .doOnNext(x -> {
+          BigDecimal total = BigDecimal.ZERO;
+          for (ConversionResult result : x) {
+            total = total.add(result.amountInGbp());
+          }
+          final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
+          formatter.setCurrency(Currency.getInstance("GBP"));
+          totalText.set(resources.getString(R.string.total_x, formatter.format(total)));
+        })
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(x -> {
           items.clear();
