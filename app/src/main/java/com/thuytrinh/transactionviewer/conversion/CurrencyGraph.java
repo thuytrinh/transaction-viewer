@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import hugo.weaving.DebugLog;
 import rx.Observable;
+import rx.schedulers.Schedulers;
 
 public class CurrencyGraph {
   public static final NumberFormat GBP_FORMATTER = NumberFormat.getCurrencyInstance(Locale.US);
@@ -92,7 +93,8 @@ public class CurrencyGraph {
       task = Observable
           .fromCallable(() -> findConversion(currency, graph))
           .map(this::asRate)
-          .cache();
+          .cache()
+          .subscribeOn(Schedulers.computation());
       rateCache.put(currency, task);
     }
     return task;
