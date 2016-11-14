@@ -19,6 +19,12 @@ import me.tatarka.bindingcollectionadapter.ItemView;
 public class TransactionsFragment extends Fragment {
   @Inject TransactionsViewModel viewModel;
 
+  public static TransactionsFragment newInstance(String sku) {
+    final TransactionsFragment fragment = new TransactionsFragment();
+    fragment.setArguments(TransactionsViewModel.newArgs(sku));
+    return fragment;
+  }
+
   public static ItemView conversionResultView() {
     return ItemView.of(BR.viewModel, R.layout.conversion_result);
   }
