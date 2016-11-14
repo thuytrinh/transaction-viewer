@@ -49,6 +49,19 @@ public class CurrencyGraph {
     return v;
   }
 
+  static ConversionResult asConversionResult(
+      String currency,
+      BigDecimal originalAmount,
+      BigDecimal amountInGbp) {
+    final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
+    formatter.setCurrency(Currency.getInstance(currency));
+    return ImmutableConversionResult.builder()
+        .originalAmountText(formatter.format(originalAmount))
+        .amountInGbpText(GBP_FORMATTER.format(amountInGbp))
+        .amountInGbp(amountInGbp)
+        .build();
+  }
+
   public Observable<ConversionResult> asGbpAsync(String currency, BigDecimal amount) {
     if (ConversionFinder.GBP.equals(currency)) {
       return Observable.fromCallable(() -> asConversionResult(
@@ -79,20 +92,7 @@ public class CurrencyGraph {
     return task;
   }
 
-  private ConversionResult asConversionResult(
-      String currency,
-      BigDecimal originalAmount,
-      BigDecimal amountInGbp) {
-    final NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.US);
-    formatter.setCurrency(Currency.getInstance(currency));
-    return ImmutableConversionResult.builder()
-        .originalAmountText(formatter.format(originalAmount))
-        .amountInGbpText(GBP_FORMATTER.format(amountInGbp))
-        .amountInGbp(amountInGbp)
-        .build();
-  }
-
   static {
-    GBP_FORMATTER.setCurrency(Currency.getInstance(ConversionFinder.GBP));
+    GBP_FORMATTER.setCurrency(Currency.getInstance(Locale.UK));
   }
 }

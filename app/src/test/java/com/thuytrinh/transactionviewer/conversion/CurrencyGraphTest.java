@@ -57,4 +57,19 @@ public class CurrencyGraphTest {
     final BigDecimal rate = CurrencyGraph.asRate(d);
     assertThat(rate).isEqualTo(BigDecimal.valueOf(24));
   }
+
+  @Test public void shouldCreateConversionResultCorrectly() {
+    final ConversionResult result = CurrencyGraph.asConversionResult(
+        "USD",
+        BigDecimal.valueOf(25.8),
+        BigDecimal.valueOf(19.866)
+    );
+    assertThat(result).isEqualTo(
+        ImmutableConversionResult.builder()
+            .originalAmountText("$25.80")
+            .amountInGbpText("GBP19.87") // Robolectric is unable to convert into `£`.
+            .amountInGbp(BigDecimal.valueOf(19.866))
+            .build()
+    );
+  }
 }
