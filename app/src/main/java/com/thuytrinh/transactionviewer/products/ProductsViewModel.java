@@ -25,7 +25,7 @@ public class ProductsViewModel extends DisposableViewModel {
   private final ProductRepository productRepository;
   private final Provider<ProductViewModel> productViewModelProvider;
   private final Action1<Throwable> errorHandler;
-  private final PublishSubject<String> onProductSelected = PublishSubject.create();
+  final PublishSubject<String> onProductSelected = PublishSubject.create();
 
   @Inject ProductsViewModel(
       Resources resources,
