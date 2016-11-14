@@ -30,24 +30,24 @@ public class CurrencyGraph {
   }
 
   @DebugLog
-  private static Node findConversion(
+  private static Path findConversion(
       String currency,
       Map<String, Map<String, BigDecimal>> graph) {
     final Set<String> visits = new LinkedHashSet<>();
-    final Queue<Node> queue = new LinkedList<>();
+    final Queue<Path> queue = new LinkedList<>();
 
-    queue.add(new Node(null, currency, BigDecimal.ONE));
+    queue.add(ImmutablePath.of(null, currency, BigDecimal.ONE));
     while (!queue.isEmpty()) {
-      final Node node = queue.poll();
-      visits.add(node.currency);
-      final Map<String, BigDecimal> neighbors = graph.get(node.currency);
+      final Path path = queue.poll();
+      visits.add(path.currency());
+      final Map<String, BigDecimal> neighbors = graph.get(path.currency());
       final Set<String> keys = neighbors.keySet();
       for (String key : keys) {
         if (!visits.contains(key)) {
-          final Node n = new Node(node, key, neighbors.get(key));
-          queue.add(n);
+          final Path newPath = ImmutablePath.of(path, key, neighbors.get(key));
+          queue.add(newPath);
           if (GBP.equals(key)) {
-            return n;
+            return newPath;
           }
         }
       }
@@ -100,11 +100,11 @@ public class CurrencyGraph {
     return task;
   }
 
-  private BigDecimal asRate(Node gbpNode) {
+  private BigDecimal asRate(Path path) {
     BigDecimal v = BigDecimal.ONE;
-    while (gbpNode != null) {
-      v = v.multiply(gbpNode.rate);
-      gbpNode = gbpNode.parent;
+    while (path != null) {
+      v = v.multiply(path.rate());
+      path = path.parent();
     }
     return v;
   }
@@ -123,18 +123,6 @@ public class CurrencyGraph {
         .to(to)
         .amountInGbp(amountInGbp)
         .build();
-  }
-
-  private static class Node {
-    final Node parent;
-    final String currency;
-    final BigDecimal rate;
-
-    Node(Node parent, String currency, BigDecimal rate) {
-      this.parent = parent;
-      this.currency = currency;
-      this.rate = rate;
-    }
   }
 
   static {
