@@ -13,18 +13,22 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import hugo.weaving.DebugLog;
 import rx.Observable;
 
 public class CurrencyGraph {
   public static final NumberFormat GBP_FORMATTER = NumberFormat.getCurrencyInstance(Locale.US);
   private static final String GBP = "GBP";
   private final Map<String, Map<String, BigDecimal>> graph;
+  private final Map<String, Observable<BigDecimal>> rateCache = new ConcurrentHashMap<>();
 
   public CurrencyGraph(List<Rate> rates) {
     graph = createGraph(rates);
   }
 
+  @DebugLog
   private static Node findConversion(
       String currency,
       Map<String, Map<String, BigDecimal>> graph) {
@@ -77,11 +81,21 @@ public class CurrencyGraph {
           "Unknown currency: " + currency
       ));
     }
-    return Observable
-        .fromCallable(() -> findConversion(currency, graph))
-        .map(this::asRate)
+    return getRateAsync(currency)
         .map(amount::multiply)
         .map(amountInGbp -> asConversionResult(currency, amount, amountInGbp));
+  }
+
+  private synchronized Observable<BigDecimal> getRateAsync(String currency) {
+    Observable<BigDecimal> task = rateCache.get(currency);
+    if (task == null) {
+      task = Observable
+          .fromCallable(() -> findConversion(currency, graph))
+          .map(this::asRate)
+          .cache();
+      rateCache.put(currency, task);
+    }
+    return task;
   }
 
   private BigDecimal asRate(Node gbpNode) {
