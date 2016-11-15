@@ -8,11 +8,15 @@ import javax.inject.Singleton;
 import dagger.Lazy;
 import rx.Observable;
 
+/**
+ * Constructs and caches {@link CurrencyGraph}
+ * for given rates provided by {@link RatesFetcher}.
+ */
 @Singleton
-public class RateRepository {
+public class CurrencyGraphRepository {
   private final Observable<CurrencyGraph> getCurrencyGraphAsync;
 
-  @Inject RateRepository(
+  @Inject CurrencyGraphRepository(
       Lazy<RatesFetcher> ratesFetcherLazy,
       Lazy<ConversionFinder> conversionFinderLazy,
       Lazy<RateCache> rateCacheLazy) {

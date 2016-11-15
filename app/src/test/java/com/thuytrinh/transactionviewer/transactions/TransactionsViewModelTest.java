@@ -3,7 +3,7 @@ package com.thuytrinh.transactionviewer.transactions;
 import android.os.Bundle;
 
 import com.thuytrinh.transactionviewer.BuildConfig;
-import com.thuytrinh.transactionviewer.conversion.RateRepository;
+import com.thuytrinh.transactionviewer.conversion.CurrencyGraphRepository;
 import com.thuytrinh.transactionviewer.products.ProductRepository;
 
 import org.junit.Before;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 public class TransactionsViewModelTest {
   @Rule public MockitoRule mockitoRule = MockitoJUnit.rule();
   @Mock TotalAmountFormatter totalAmountFormatter;
-  @Mock RateRepository rateRepository;
+  @Mock CurrencyGraphRepository currencyGraphRepository;
   @Mock ProductRepository productRepository;
   @Mock Action1<Throwable> errorHandler;
   private TransactionsViewModel viewModel;
@@ -37,7 +37,7 @@ public class TransactionsViewModelTest {
     viewModel = new TransactionsViewModel(
         RuntimeEnvironment.application.getResources(),
         () -> totalAmountFormatter,
-        rateRepository,
+        currencyGraphRepository,
         productRepository,
         errorHandler
     );
@@ -49,7 +49,7 @@ public class TransactionsViewModelTest {
   }
 
   @Test public void shouldReflectCorrectTitleForSku() {
-    when(rateRepository.getCurrencyGraphAsync())
+    when(currencyGraphRepository.getCurrencyGraphAsync())
         .thenReturn(Observable.empty());
 
     final Bundle args = new Bundle();

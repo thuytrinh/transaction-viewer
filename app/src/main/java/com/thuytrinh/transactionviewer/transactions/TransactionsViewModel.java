@@ -8,7 +8,7 @@ import android.os.Bundle;
 
 import com.thuytrinh.transactionviewer.R;
 import com.thuytrinh.transactionviewer.conversion.ConversionResult;
-import com.thuytrinh.transactionviewer.conversion.RateRepository;
+import com.thuytrinh.transactionviewer.conversion.CurrencyGraphRepository;
 import com.thuytrinh.transactionviewer.products.ProductRepository;
 import com.thuytrinh.transactionviewer.util.DisposableViewModel;
 
@@ -29,19 +29,19 @@ public class TransactionsViewModel extends DisposableViewModel {
 
   private final Resources resources;
   private final Lazy<TotalAmountFormatter> totalAmountFormatterLazy;
-  private final RateRepository rateRepository;
+  private final CurrencyGraphRepository currencyGraphRepository;
   private final ProductRepository productRepository;
   private final Action1<Throwable> errorHandler;
 
   @Inject TransactionsViewModel(
       Resources resources,
       Lazy<TotalAmountFormatter> totalAmountFormatterLazy,
-      RateRepository rateRepository,
+      CurrencyGraphRepository currencyGraphRepository,
       ProductRepository productRepository,
       Action1<Throwable> errorHandler) {
     this.resources = resources;
     this.totalAmountFormatterLazy = totalAmountFormatterLazy;
-    this.rateRepository = rateRepository;
+    this.currencyGraphRepository = currencyGraphRepository;
     this.productRepository = productRepository;
     this.errorHandler = errorHandler;
   }
@@ -56,7 +56,7 @@ public class TransactionsViewModel extends DisposableViewModel {
     final String sku = args.getString(KEY_SKU);
     title.set(resources.getString(R.string.transactions_for_x, sku));
 
-    rateRepository.getCurrencyGraphAsync()
+    currencyGraphRepository.getCurrencyGraphAsync()
         .flatMap(g -> productRepository.getProductBySkuAsync(sku)
             .flatMap(x -> Observable.from(x.transactions()))
             // concatMap() to maintain the original order of transactions.
